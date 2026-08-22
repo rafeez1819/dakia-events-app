@@ -12,12 +12,20 @@ export function Header({ onCreate }: Props) {
           </span>
           <span className="font-display text-lg font-semibold">Dakia</span>
         </a>
-        <button
-          onClick={onCreate}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-        >
-          Host an event
-        </button>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <a
+            href="#technical-services"
+            className="hidden rounded-full px-3 py-2 text-sm font-medium text-muted transition-colors hover:text-foreground sm:inline-block"
+          >
+            Technical Services
+          </a>
+          <button
+            onClick={onCreate}
+            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Host an event
+          </button>
+        </div>
       </div>
     </header>
   )

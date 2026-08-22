@@ -8,6 +8,7 @@ import { FilterBar } from "./components/FilterBar"
 import { EventCard } from "./components/EventCard"
 import { EventDetail } from "./components/EventDetail"
 import { CreateEventDialog } from "./components/CreateEventDialog"
+import { TechnicalServices } from "./components/TechnicalServices"
 
 export default function App() {
   const { data: events, error, isLoading } = useSWR("events", fetchEvents)
@@ -88,6 +89,8 @@ export default function App() {
           </div>
         )}
       </main>
+
+      <TechnicalServices />
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-8 text-sm text-muted sm:flex-row sm:px-6">
