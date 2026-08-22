@@ -1,0 +1,12 @@
+{
+  "name": "dakia-events-production",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dakia Events production website and lead capture server",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
