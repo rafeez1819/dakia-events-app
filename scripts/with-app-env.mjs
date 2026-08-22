@@ -1,24 +1,5 @@
 #!/usr/bin/env node
-/**
- * Run a command with `.grok/app-env.json` merged into its environment.
- *
- * `dev`, `build` and `preview` all route through this wrapper, so the dev
- * server, the built bundle and the preview server can never disagree about
- * `VITE_AUTH_ENABLED` — a divergence that only shows up as a built-output
- * mismatch long after the fact. Anything that starts Vite directly bypasses it.
- *
- * Only `VITE_`-prefixed keys are honored: the file is a build flag carrier, not
- * a secret store, and only `VITE_` vars reach the browser anyway. A real
- * `process.env` entry always wins, so an explicit override still works.
- *
- * That precedence also means the file governs this workspace only. A deployed
- * build runs with the provider's project env, where the deployer sets
- * `VITE_AUTH_ENABLED` itself (today unconditionally `"true"`), so the deployed
- * flag is the platform's, not this file's.
- *
- * Vite picks the values up because `loadEnv` prefix-matches entries already in
- * `process.env`, which is why the merge has to happen before Vite starts.
- */
+
 import { spawn } from "node:child_process";
 import { readFileSync, realpathSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -28,57 +9,61 @@ export const APP_ENV_REL_PATH = ".grok/app-env.json";
 
 const VITE_PREFIX = "VITE_";
 
-/**
- * Parse an app-env document, keeping only `VITE_`-prefixed string entries.
- * Anything unparseable is an empty environment — a workspace without the file
- * must behave exactly like today (auth on, no overrides).
- */
 export function parseAppEnv(text) {
   let parsed;
+
   try {
     parsed = JSON.parse(text);
   } catch {
     return {};
   }
-  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+
+  if (
+    parsed === null ||
+    typeof parsed !== "object" ||
+    Array.isArray(parsed)
+  ) {
+    return {};
+  }
+
   const env = {};
+
   for (const [key, value] of Object.entries(parsed)) {
     if (!key.startsWith(VITE_PREFIX)) continue;
     if (typeof value !== "string") continue;
+
     env[key] = value;
   }
+
   return env;
 }
 
-/** The app env recorded under `root`, or `{}` when the file is absent. */
 export function readAppEnv(root) {
   try {
-    return parseAppEnv(readFileSync(join(root, APP_ENV_REL_PATH), "utf8"));
+    return parseAppEnv(
+      readFileSync(join(root, APP_ENV_REL_PATH), "utf8")
+    );
   } catch {
     return {};
   }
 }
 
-/** File values under the process environment: an explicit override wins. */
 export function mergeAppEnv(appEnv, processEnv) {
-  return { ...appEnv, ...processEnv };
+  return {
+    ...appEnv,
+    ...processEnv,
+  };
 }
 
-/** The workspace root (this file lives in `<root>/scripts/`). */
 export function projectRoot() {
   return dirname(dirname(fileURLToPath(import.meta.url)));
 }
 
-/**
- * Whether `moduleUrl` is the script node was asked to run.
- *
- * Both sides are resolved through symlinks: node realpaths `import.meta.url`
- * but leaves `process.argv[1]` as typed, so comparing them raw makes a CLI
- * launched through a symlinked path (`/tmp` on macOS) a silent no-op.
- */
 export function isMainModule(moduleUrl) {
   const entry = process.argv[1];
+
   if (!entry) return false;
+
   try {
     return realpathSync(entry) === fileURLToPath(moduleUrl);
   } catch {
@@ -86,31 +71,118 @@ export function isMainModule(moduleUrl) {
   }
 }
 
+function resolveCommand(command) {
+  if (process.platform !== "win32") {
+    return command;
+  }
+
+  if (
+    command.endsWith(".cmd") ||
+    command.endsWith(".exe") ||
+    command.endsWith(".bat")
+  ) {
+    return command;
+  }
+
+  return `${command}.cmd`;
+}
+
+function quoteWindowsArg(value) {
+  const stringValue = String(value);
+
+  if (
+    stringValue.length > 0 &&
+    !/[ \t"&|<>^]/.test(stringValue)
+  ) {
+    return stringValue;
+  }
+
+  return `"${stringValue.replace(/(["\\])/g, "\\$1")}"`;
+}
+
 function main(argv) {
   const [command, ...args] = argv;
+
   if (!command) {
-    console.error("usage: node scripts/with-app-env.mjs <command> [args…]");
+    console.error(
+      "usage: node scripts/with-app-env.mjs <command> [args...]"
+    );
     process.exit(2);
   }
-  const env = mergeAppEnv(readAppEnv(projectRoot()), process.env);
-  const child = spawn(command, args, { stdio: "inherit", env });
-  // The dev server is long-running and is stopped by signalling this wrapper.
-  for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
-    process.on(signal, () => child.kill(signal));
+
+  const root = projectRoot();
+
+  const env = mergeAppEnv(
+    readAppEnv(root),
+    process.env
+  );
+
+  const executable = resolveCommand(command);
+
+  console.log(
+    `[with-app-env] launching: ${executable}${
+      args.length ? ` ${args.join(" ")}` : ""
+    }`
+  );
+
+  let spawnCommand = executable;
+  let spawnArgs = args;
+
+  if (process.platform === "win32") {
+    const comspec = process.env.ComSpec || "cmd.exe";
+
+    /*
+     * Windows .cmd files need cmd.exe.
+     *
+     * IMPORTANT:
+     * Do not wrap the executable in quotes here.
+     * The previous implementation produced:
+     *
+     *     "vite.cmd" "build"
+     *
+     * which /s /c can reinterpret incorrectly as:
+     *
+     *     '"vite.cmd"'
+     */
+
+    const commandLine = [
+      executable,
+      ...args.map(quoteWindowsArg),
+    ].join(" ");
+
+    spawnCommand = comspec;
+    spawnArgs = ["/d", "/c", commandLine];
   }
+
+  const child = spawn(spawnCommand, spawnArgs, {
+    cwd: root,
+    stdio: "inherit",
+    env,
+    shell: false,
+  });
+
+  for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
+    process.on(signal, () => {
+      if (!child.killed) {
+        child.kill(signal);
+      }
+    });
+  }
+
   child.on("error", (err) => {
-    console.error(`[with-app-env] failed to run ${command}:`, err?.message || err);
+    console.error(
+      `[with-app-env] failed to run ${command}:`,
+      err?.message || err
+    );
+
     process.exit(127);
   });
+
   child.on("exit", (code, signal) => {
     if (signal) {
-      // Die the same way the child did, so an interrupted build is never
-      // reported as success. The handler above has to go first or it catches
-      // the re-raised signal and the wrapper falls through to exit 0.
-      process.removeAllListeners(signal);
-      process.kill(process.pid, signal);
-      return;
+      process.exit(1);
     }
+
     process.exit(code ?? 1);
   });
 }
