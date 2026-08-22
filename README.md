@@ -1,5 +1,3 @@
-# dakia-events-app
-
 # Dakia Events App
 
 An all-in-one full-stack platform for event management, built with **TanStack Start**, **Vite**, **React**, and **Tailwind CSS**. Fully deployed and optimized via **Vercel**.
