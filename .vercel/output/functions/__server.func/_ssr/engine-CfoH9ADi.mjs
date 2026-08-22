@@ -1,0 +1,453 @@
+import { f as EVENT_VALUE_AED, l as CHANNELS, p as FUNNEL_STEPS, u as CITIES } from "./store-e_Pha8XU.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/engine-CfoH9ADi.js
+function mean(xs) {
+	if (!xs.length) return 0;
+	return xs.reduce((a, b) => a + b, 0) / xs.length;
+}
+function stdev(xs) {
+	if (xs.length < 2) return 0;
+	const m = mean(xs);
+	return Math.sqrt(xs.reduce((s, x) => s + (x - m) ** 2, 0) / (xs.length - 1));
+}
+function dayKey(ts) {
+	return new Date(ts).toISOString().slice(0, 10);
+}
+function str(params, key, fallback = "") {
+	const v = params[key];
+	return v == null ? fallback : String(v);
+}
+function asDevice(v) {
+	if (v === "tablet" || v === "mobile" || v === "desktop") return v;
+	return "desktop";
+}
+function sessionsFrom(events) {
+	const map = /* @__PURE__ */ new Map();
+	for (const e of events) {
+		let s = map.get(e.session_id);
+		if (!s) {
+			s = {
+				id: e.session_id,
+				client: e.client_id,
+				ts: e.timestamp,
+				events: /* @__PURE__ */ new Set(),
+				channel: "direct",
+				device: "desktop",
+				city: "Unknown",
+				product: "UNKNOWN",
+				page: "/",
+				eventType: "",
+				engaged: false,
+				value: 0
+			};
+			map.set(e.session_id, s);
+		}
+		s.events.add(e.event);
+		s.ts = Math.min(s.ts, e.timestamp);
+		const channel = str(e.params, "lead_source");
+		if (channel) s.channel = channel;
+		const device = str(e.params, "device_category");
+		if (device) s.device = asDevice(device);
+		const city = str(e.params, "city");
+		if (city) s.city = city;
+		const product = str(e.params, "product_type");
+		if (product) s.product = product;
+		const loc = str(e.params, "page_location");
+		if (loc) try {
+			const u = new URL(loc);
+			s.page = `${u.pathname}${u.hash || ""}` || "/";
+		} catch {
+			s.page = loc;
+		}
+		const group = str(e.params, "content_group");
+		if (group && group !== "home") s.page = `/#${group}`;
+		const et = str(e.params, "event_type");
+		if (et) s.eventType = et;
+		if (e.event === "user_engagement" || e.event === "scroll") s.engaged = true;
+		const val = e.params.value;
+		if (typeof val === "number") s.value += val;
+		else if (EVENT_VALUE_AED[e.event]) s.value += EVENT_VALUE_AED[e.event];
+	}
+	return map;
+}
+function scoreSession(s) {
+	let score = 0;
+	const n = (name) => s.events.has(name) ? 1 : 0;
+	score += Math.min(20, (n("page_view") + n("scroll") + n("user_engagement")) * 6);
+	score += n("product_view") * 10;
+	score += n("led_product_view") * 8;
+	score += n("project_view") * 6;
+	score += n("fiba_project_view") * 8;
+	score += n("quotation_start") * 15;
+	score += n("quotation_submit") * 22;
+	score += n("lead_generated") * 18;
+	score += n("whatsapp_click") * 10;
+	score += n("phone_click") * 12;
+	score += n("email_click") * 6;
+	if (s.channel === "linkedin" || s.channel === "paid") score += 8;
+	if (s.device === "desktop") score += 5;
+	if ([
+		"Dubai",
+		"Abu Dhabi",
+		"Ajman",
+		"Sharjah"
+	].includes(s.city)) score += 4;
+	return Math.max(0, Math.min(100, score));
+}
+function bandOf(score) {
+	if (score >= 81) return "very_high";
+	if (score >= 61) return "high";
+	if (score >= 31) return "medium";
+	return "low";
+}
+function isLead(s) {
+	return s.events.has("lead_generated") || s.events.has("quotation_submit") || s.events.has("contact_form_submit");
+}
+function detectAnomalies(daily) {
+	const metrics = [
+		{
+			key: "users",
+			pick: (d) => d.users
+		},
+		{
+			key: "leads",
+			pick: (d) => d.leads
+		},
+		{
+			key: "conversions",
+			pick: (d) => d.conversions
+		},
+		{
+			key: "conversionValue",
+			pick: (d) => d.conversionValue
+		}
+	];
+	const out = [];
+	for (const metric of metrics) {
+		const series = daily.map(metric.pick);
+		const m = mean(series);
+		const sd = stdev(series) || 1;
+		daily.forEach((d, i) => {
+			const value = series[i];
+			const z = (value - m) / sd;
+			if (Math.abs(z) >= 2.4) out.push({
+				date: d.date,
+				metric: metric.key,
+				value,
+				expected: Math.round(m),
+				z: Math.round(z * 100) / 100,
+				direction: z > 0 ? "up" : "down"
+			});
+		});
+	}
+	return out.sort((a, b) => Math.abs(b.z) - Math.abs(a.z)).slice(0, 8);
+}
+function forecastFrom(daily) {
+	const last = daily.slice(-30);
+	const points = last.map((d) => ({
+		date: d.date,
+		leads: d.leads,
+		value: d.conversionValue,
+		kind: "actual"
+	}));
+	const n = last.length;
+	if (n < 5) return points;
+	const xs = last.map((_, i) => i);
+	const ysL = last.map((d) => d.leads);
+	const ysV = last.map((d) => d.conversionValue);
+	const regress = (ys) => {
+		const xBar = mean(xs);
+		const yBar = mean(ys);
+		let num = 0;
+		let den = 0;
+		xs.forEach((x, i) => {
+			num += (x - xBar) * (ys[i] - yBar);
+			den += (x - xBar) ** 2;
+		});
+		const b = den ? num / den : 0;
+		return {
+			a: yBar - b * xBar,
+			b
+		};
+	};
+	const l = regress(ysL);
+	const v = regress(ysV);
+	const end = new Date(last[n - 1].date);
+	for (let i = 1; i <= 30; i++) {
+		const d = new Date(end);
+		d.setDate(d.getDate() + i);
+		const x = n - 1 + i;
+		points.push({
+			date: d.toISOString().slice(0, 10),
+			leads: Math.max(0, Math.round(l.a + l.b * x)),
+			value: Math.max(0, Math.round(v.a + v.b * x)),
+			kind: "forecast"
+		});
+	}
+	return points;
+}
+function emptyDaily(date) {
+	const channels = {};
+	for (const c of CHANNELS) channels[c] = 0;
+	const geos = {};
+	for (const g of CITIES) geos[g] = 0;
+	return {
+		date,
+		users: 0,
+		newUsers: 0,
+		sessions: 0,
+		engagedSessions: 0,
+		pageViews: 0,
+		avgEngagementSec: 0,
+		channels,
+		devices: {
+			mobile: 0,
+			desktop: 0,
+			tablet: 0
+		},
+		geos,
+		events: {},
+		conversions: 0,
+		conversionValue: 0,
+		leads: 0,
+		qualifiedLeads: 0
+	};
+}
+function rollupDays(events, rangeDays, end) {
+	const sessions = sessionsFrom(events);
+	const byDay = /* @__PURE__ */ new Map();
+	for (let i = rangeDays - 1; i >= 0; i--) {
+		const d = new Date(end);
+		d.setDate(d.getDate() - i);
+		const key = d.toISOString().slice(0, 10);
+		byDay.set(key, emptyDaily(key));
+	}
+	const seenClient = /* @__PURE__ */ new Set();
+	for (const s of sessions.values()) {
+		const key = dayKey(s.ts);
+		const row = byDay.get(key);
+		if (!row) continue;
+		row.sessions += 1;
+		if (!seenClient.has(s.client + key)) {
+			row.users += 1;
+			seenClient.add(s.client + key);
+		}
+		if (s.engaged) row.engagedSessions += 1;
+		row.devices[s.device] += 1;
+		if (s.channel in row.channels) row.channels[s.channel] += 1;
+		else row.channels[s.channel] = (row.channels[s.channel] ?? 0) + 1;
+		if (s.city && s.city !== "Unknown") row.geos[s.city] = (row.geos[s.city] ?? 0) + 1;
+		if (isLead(s)) {
+			row.leads += 1;
+			row.conversions += 1;
+			row.conversionValue += s.value || EVENT_VALUE_AED.lead_generated || 0;
+			if (scoreSession(s) >= 61) row.qualifiedLeads += 1;
+		}
+	}
+	for (const e of events) {
+		const row = byDay.get(dayKey(e.timestamp));
+		if (!row) continue;
+		row.events[e.event] = (row.events[e.event] ?? 0) + 1;
+		if (e.event === "page_view") row.pageViews += 1;
+	}
+	return [...byDay.values()];
+}
+function funnelOf(sessions) {
+	const list = [...sessions.values()];
+	const steps = FUNNEL_STEPS.map((step) => ({
+		id: step.id,
+		label: step.label,
+		count: list.filter((s) => step.events.some((ev) => s.events.has(ev))).length
+	}));
+	steps.push({
+		id: "qualified",
+		label: "Qualified leads",
+		count: list.filter((s) => isLead(s) && scoreSession(s) >= 61).length
+	});
+	return steps;
+}
+function realtimeFrom(events) {
+	const cutoff = Date.now() - 18e5;
+	return [...sessionsFrom(events.filter((e) => e.timestamp >= cutoff)).values()].sort((a, b) => b.ts - a.ts).slice(0, 40).map((s) => ({
+		id: s.id,
+		city: s.city === "Unknown" ? "—" : s.city,
+		page: s.page,
+		device: s.device,
+		since: s.ts
+	}));
+}
+function buildSnapshotFromEvents(opts) {
+	const { events, prevEvents, rangeDays } = opts;
+	const end = /* @__PURE__ */ new Date();
+	end.setHours(12, 0, 0, 0);
+	const daily = rollupDays(events, rangeDays, end);
+	rollupDays(prevEvents, rangeDays, /* @__PURE__ */ new Date(end.getTime() - rangeDays * 864e5));
+	const sessions = sessionsFrom(events);
+	const prevSessions = sessionsFrom(prevEvents);
+	const users = new Set([...sessions.values()].map((s) => s.client)).size;
+	const prevUsers = new Set([...prevSessions.values()].map((s) => s.client)).size;
+	const sessionCount = sessions.size;
+	const engagedSessions = [...sessions.values()].filter((s) => s.engaged).length;
+	const pageViews = events.filter((e) => e.event === "page_view").length;
+	const leadSessions = [...sessions.values()].filter(isLead);
+	const prevLeads = [...prevSessions.values()].filter(isLead).length;
+	const qualified = leadSessions.filter((s) => scoreSession(s) >= 61);
+	const conversionValue = leadSessions.reduce((n, s) => n + (s.value || EVENT_VALUE_AED.lead_generated || 0), 0);
+	const channelUsers = {};
+	const channelLeads = {};
+	const deviceUsers = {
+		mobile: 0,
+		desktop: 0,
+		tablet: 0
+	};
+	const deviceLeads = {
+		mobile: 0,
+		desktop: 0,
+		tablet: 0
+	};
+	const geoUsers = {};
+	const geoLeads = {};
+	for (const s of sessions.values()) {
+		channelUsers[s.channel] ??= /* @__PURE__ */ new Set();
+		channelUsers[s.channel].add(s.client);
+		deviceUsers[s.device] += 1;
+		if (s.city && s.city !== "Unknown") {
+			geoUsers[s.city] ??= /* @__PURE__ */ new Set();
+			geoUsers[s.city].add(s.client);
+		}
+		if (isLead(s)) {
+			channelLeads[s.channel] = (channelLeads[s.channel] ?? 0) + 1;
+			deviceLeads[s.device] += 1;
+			if (s.city && s.city !== "Unknown") geoLeads[s.city] = (geoLeads[s.city] ?? 0) + 1;
+		}
+	}
+	const channelMix = CHANNELS.map((name) => ({
+		name,
+		users: channelUsers[name]?.size ?? 0,
+		leads: channelLeads[name] ?? 0
+	}));
+	const deviceMix = [
+		"mobile",
+		"desktop",
+		"tablet"
+	].map((name) => ({
+		name,
+		users: deviceUsers[name],
+		leads: deviceLeads[name]
+	}));
+	const geoMix = Object.keys({
+		...geoUsers,
+		...Object.fromEntries(CITIES.map((c) => [c, 1]))
+	}).map((name) => ({
+		name,
+		users: geoUsers[name]?.size ?? 0,
+		leads: geoLeads[name] ?? 0
+	})).filter((g) => g.users > 0).sort((a, b) => b.users - a.users);
+	const pageStats = /* @__PURE__ */ new Map();
+	for (const e of events) {
+		if (e.event !== "page_view") continue;
+		const group = str(e.params, "content_group", "home");
+		const path = group === "home" ? "/" : `/#${group}`;
+		const row = pageStats.get(path) ?? {
+			views: 0,
+			conversions: 0,
+			engaged: 0
+		};
+		row.views += 1;
+		pageStats.set(path, row);
+	}
+	for (const s of sessions.values()) {
+		const path = s.page.startsWith("/#") || s.page === "/" ? s.page : s.page;
+		const row = pageStats.get(path) ?? {
+			views: 0,
+			conversions: 0,
+			engaged: 0
+		};
+		if (s.engaged) row.engaged += 1;
+		if (isLead(s)) row.conversions += 1;
+		pageStats.set(path, row);
+	}
+	const topPages = [...pageStats.entries()].map(([path, v]) => ({
+		path,
+		views: v.views,
+		engagement: v.views ? Math.round(v.engaged / Math.max(v.views, 1) * 100) : 0,
+		conversions: v.conversions
+	})).sort((a, b) => b.views - a.views).slice(0, 8);
+	const leadsList = leadSessions.sort((a, b) => b.ts - a.ts).slice(0, 80).map((s) => {
+		const score = scoreSession(s);
+		const product = PRODUCT_SAFE.has(s.product) ? s.product : "UNKNOWN";
+		return {
+			id: s.id,
+			ts: s.ts,
+			eventType: s.eventType || "quotation",
+			productType: product,
+			source: s.channel,
+			city: s.city,
+			device: s.device,
+			score,
+			band: bandOf(score),
+			qualified: score >= 61
+		};
+	});
+	const delta = (curr, prev) => prev ? (curr - prev) / prev : 0;
+	return {
+		rangeDays,
+		seededEvents: opts.seededEvents,
+		liveEventsCount: opts.liveEventsCount,
+		users,
+		sessions: sessionCount,
+		engagedSessions,
+		pageViews,
+		engagementRate: sessionCount ? engagedSessions / sessionCount : 0,
+		avgEngagementSec: daily.length ? Math.round(mean(daily.map((d) => d.avgEngagementSec))) : 0,
+		leads: leadSessions.length,
+		qualifiedLeads: qualified.length,
+		conversions: leadSessions.length,
+		conversionRate: users ? leadSessions.length / users : 0,
+		conversionValue,
+		usersDelta: delta(users, prevUsers),
+		leadsDelta: delta(leadSessions.length, prevLeads),
+		channelMix,
+		deviceMix,
+		geoMix,
+		topPages,
+		daily,
+		funnel: funnelOf(sessions),
+		leadsList,
+		anomalies: detectAnomalies(daily),
+		forecast: forecastFrom(daily),
+		realtime: realtimeFrom(opts.realtimeEvents),
+		liveEvents: opts.recent
+	};
+}
+var PRODUCT_SAFE = /* @__PURE__ */ new Set([
+	"LED_VIDEO_WALL",
+	"SOUND_SYSTEM",
+	"LIGHTING",
+	"STAGE_RIGGING",
+	"EVENT_PRODUCTION",
+	"AV_RENTAL"
+]);
+function summarizeForAi(s) {
+	return {
+		rangeDays: s.rangeDays,
+		users: s.users,
+		usersDeltaPct: Math.round(s.usersDelta * 1e3) / 10,
+		sessions: s.sessions,
+		engagementRatePct: Math.round(s.engagementRate * 1e3) / 10,
+		leads: s.leads,
+		leadsDeltaPct: Math.round(s.leadsDelta * 1e3) / 10,
+		qualifiedLeads: s.qualifiedLeads,
+		conversionRatePct: Math.round(s.conversionRate * 1e3) / 10,
+		conversionValueAED: s.conversionValue,
+		topChannel: [...s.channelMix].sort((a, b) => b.leads - a.leads)[0],
+		topGeo: s.geoMix[0],
+		deviceMix: s.deviceMix,
+		funnel: s.funnel,
+		anomalies: s.anomalies.slice(0, 5),
+		forecast30Leads: s.forecast.filter((f) => f.kind === "forecast").reduce((n, f) => n + f.leads, 0),
+		liveEventsCount: s.liveEventsCount,
+		note: "Aggregated metrics only. No names, emails, phones, or raw user histories."
+	};
+}
+//#endregion
+export { summarizeForAi as n, buildSnapshotFromEvents as t };

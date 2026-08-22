@@ -1,0 +1,1129 @@
+
+/* Dakia marketing site — scoped so /intel dashboard is unaffected */
+html.dakia-mode {
+  scroll-behavior: smooth;
+}
+html.dakia-mode body {
+  background: #080808;
+  color: #f0ede8;
+  overflow-x: hidden;
+}
+
+  
+html.dakia-mode {
+    --black: #080808;
+    --black2: #0e0e0e;
+    --black3: #141414;
+    --black4: #1a1a1a;
+    --black5: #222222;
+    --gold: #c9a84c;
+    --gold2: #e8c96a;
+    --gold3: #f5e199;
+    --gold-dim: rgba(201,168,76,0.15);
+    --gold-dim2: rgba(201,168,76,0.08);
+    --white: #f0ede8;
+    --white2: #d8d4cc;
+    --muted: #888480;
+    --muted2: #554f48;
+    --accent: #e03a2e;
+    --border: rgba(201,168,76,0.18);
+    --border2: rgba(255,255,255,0.06);
+  }
+  .dakia-root, .dakia-root *, .dakia-root *::before, .dakia-root *::after{ box-sizing: border-box; margin: 0; padding: 0; }
+  .dakia-root{ scroll-behavior: smooth; }
+  .dakia-root{
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: default;
+    min-height: 100vh;
+    position: relative;
+  }
+  .dakia-root ::selection{ background: var(--gold); color: var(--black); }
+  .dakia-root a{ text-decoration: none; color: inherit; }
+  .dakia-root button{ font-family: inherit; }
+  .dakia-root img{ max-width: 100%; display: block; }
+
+  .dakia-root .skip-link{
+    position: fixed; left: 12px; top: -100px; z-index: 9999;
+    background: var(--gold); color: #000;
+    padding: 10px 14px; font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  .dakia-root .skip-link:focus{ top: 12px; outline: none; }
+
+  /* ── CUSTOM CURSOR ── */
+  .dakia-root .cursor{ position: fixed; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 9999; transition: transform 0.15s ease, opacity 0.3s; mix-blend-mode: difference; }
+  .dakia-root .cursor-ring{ position: fixed; width: 36px; height: 36px; border: 1px solid rgba(201,168,76,0.5); border-radius: 50%; pointer-events: none; z-index: 9998; transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), opacity 0.3s; }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  .dakia-root::before{
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.4;
+  }
+
+  /* ── NAVIGATION ── */
+  .dakia-root nav{
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 4rem;
+    background: transparent;
+    transition: background 0.5s, padding 0.4s;
+    border-bottom: 1px solid transparent;
+  }
+  .dakia-root nav.scrolled{
+    background: rgba(8,8,8,0.96);
+    padding: 1rem 4rem;
+    border-bottom-color: var(--border);
+    backdrop-filter: blur(20px);
+  }
+  .dakia-root .nav-logo{
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .dakia-root .nav-logo img{
+    width: 40px; height: 40px; object-fit: cover; border-radius: 8px;
+  }
+  .dakia-root .nav-logo-wordmark{
+    display: flex; flex-direction: column; line-height: 0.85;
+    letter-spacing: 0.22em; font-family: 'Barlow Condensed', sans-serif;
+  }
+  .dakia-root .nav-logo-wordmark strong{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem; letter-spacing: 0.12em;
+    color: var(--white); font-weight: 400;
+  }
+  .dakia-root .nav-logo-wordmark small{
+    font-size: 0.6rem; color: var(--gold); letter-spacing: 0.34em; margin-top: 4px;
+  }
+  .dakia-root .nav-links{ display: flex; gap: 2.5rem; align-items: center; }
+  .dakia-root .nav-links a{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.3s;
+    position: relative;
+  }
+  .dakia-root .nav-links a::after{
+    content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+    height: 1px; background: var(--gold);
+    transform: scaleX(0); transform-origin: right;
+    transition: transform 0.3s cubic-bezier(0.23,1,0.32,1);
+  }
+  .dakia-root .nav-links a:hover, .dakia-root .nav-links a.active{ color: var(--white); }
+  .dakia-root .nav-links a:hover::after, .dakia-root .nav-links a.active::after{ transform: scaleX(1); transform-origin: left; }
+  .dakia-root .nav-cta{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.6rem;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    transition: all 0.3s;
+  }
+  .dakia-root .nav-cta:hover{ background: var(--gold); color: var(--black); }
+  .dakia-root .hamburger{ display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: 0; }
+  .dakia-root .hamburger span{ display: block; width: 24px; height: 1px; background: var(--white); transition: all 0.3s; }
+
+  /* ── HERO ── */
+  .dakia-root #hero{
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 4rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .dakia-root .hero-bg{
+    position: absolute; inset: 0;
+    z-index: 0;
+  }
+  .dakia-root .hero-bg::before{
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 60% 40%, rgba(201,168,76,0.1) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(224,58,46,0.06) 0%, transparent 50%),
+      linear-gradient(160deg, rgba(10,10,10,0.92) 0%, rgba(8,8,8,0.96) 55%, rgba(8,8,8,1) 100%);
+    z-index: 1;
+  }
+  .dakia-root .hero-bg::after{
+    content: ''; position: absolute; inset: 0;
+    background-image: url('/assets/hero-stadium.jpg');
+    background-size: cover;
+    background-position: 65% center;
+    filter: saturate(0.95) contrast(1.05) brightness(0.65);
+    z-index: 0;
+  }
+  .dakia-root .hero-grid-lines{
+    position: absolute; inset: 0; z-index: 1;
+    background-image:
+      linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%);
+  }
+  .dakia-root .hero-scan{
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    animation: scan 6s ease-in-out infinite;
+    z-index: 2;
+    opacity: 0.4;
+  }
+  @keyframes scan {
+    0% { top: 0; opacity: 0; }
+    10% { opacity: 0.4; }
+    90% { opacity: 0.4; }
+    100% { top: 100%; opacity: 0; }
+  }
+  .dakia-root .hero-tag{
+    position: relative; z-index: 3;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .dakia-root .hero-tag::before{
+    content: ''; display: inline-block;
+    width: 40px; height: 1px; background: var(--gold);
+  }
+  .dakia-root .hero-title{
+    position: relative; z-index: 3;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 14vw, 13rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    color: var(--white);
+  }
+  .dakia-root .hero-title .line2{ display: block; color: var(--gold); }
+  .dakia-root .hero-title .line3{ display: block; font-family: 'Barlow Condensed', sans-serif; font-size: clamp(1rem, 2.2vw, 2rem); font-weight: 300; letter-spacing: 0.35em; color: var(--muted); margin-top: 0.5rem; text-transform: uppercase; }
+  .dakia-root .hero-bottom{
+    position: relative; z-index: 3;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-top: 3rem;
+    gap: 2rem;
+  }
+  .dakia-root .hero-desc{
+    max-width: 420px;
+    font-size: 1rem; line-height: 1.75; color: var(--muted);
+    font-weight: 300;
+  }
+  .dakia-root .hero-desc strong{ color: var(--white2); font-weight: 400; }
+  .dakia-root .hero-cta{ display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .dakia-root .btn-primary{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1rem 2.5rem;
+    background: var(--gold);
+    color: var(--black);
+    font-weight: 600;
+    transition: all 0.3s;
+    display: inline-block;
+    border: 0;
+    cursor: pointer;
+  }
+  .dakia-root .btn-primary:hover{ background: var(--gold2); transform: translateY(-2px); }
+  .dakia-root .btn-primary:disabled{ opacity: 0.6; cursor: not-allowed; transform: none; background: var(--gold); }
+  .dakia-root .btn-outline{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1rem 2.5rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--white2);
+    transition: all 0.3s;
+    display: inline-block;
+    background: transparent;
+  }
+  .dakia-root .btn-outline:hover{ border-color: var(--gold); color: var(--gold); }
+  .dakia-root .hero-scroll{
+    position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%);
+    z-index: 3;
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  }
+  .dakia-root .hero-scroll span{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted2);
+  }
+  .dakia-root .scroll-line{
+    width: 1px; height: 50px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollpulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollpulse { 0%,100% { opacity: 1; transform: scaleY(1); } 50% { opacity: 0.3; transform: scaleY(0.6); } }
+
+  .dakia-root .hero-contact-strip{
+    position: relative; z-index: 3;
+    display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;
+    margin-top: 2.5rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+  }
+  .dakia-root .hero-contact-strip a{ display: flex; gap: 0.5rem; align-items: center; color: var(--gold); }
+  .dakia-root .hero-contact-strip a span{ color: var(--white2); }
+
+  /* ── STATS TICKER ── */
+  .dakia-root .stats-bar{
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    background: var(--black2);
+    overflow: hidden; position: relative;
+  }
+  .dakia-root .stats-ticker{
+    display: flex; gap: 0;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .dakia-root .stat-item{
+    display: flex; align-items: center; gap: 0.8rem;
+    padding: 1rem 3rem;
+    border-right: 1px solid var(--border2);
+    flex-shrink: 0;
+  }
+  .dakia-root .stat-num{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+  .dakia-root .stat-label{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+  .dakia-root .stat-div{
+    width: 4px; height: 4px;
+    background: var(--gold);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── SECTIONS ── */
+  .dakia-root section{ position: relative; }
+  .dakia-root .section-pad{ padding: 8rem 4rem; }
+  .dakia-root .section-tag{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--gold);
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .dakia-root .section-tag::before{ content: ''; width: 30px; height: 1px; background: var(--gold); }
+  .dakia-root .section-title{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 6vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: 0.03em;
+    color: var(--white);
+  }
+  .dakia-root .section-title em{ font-style: normal; color: var(--gold); }
+  .dakia-root .gold-line{
+    width: 60px; height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    margin: 1.5rem 0;
+  }
+
+  /* ── ABOUT ── */
+  .dakia-root #about{ background: var(--black2); }
+  .dakia-root .about-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+    max-width: 1400px; margin: 0 auto;
+  }
+  .dakia-root .about-text p{
+    font-size: 1.05rem; line-height: 1.8;
+    color: var(--muted); margin-bottom: 1.5rem;
+  }
+  .dakia-root .about-text p strong{ color: var(--white2); font-weight: 400; }
+  .dakia-root .about-values{
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border2);
+    border: 1px solid var(--border2);
+    margin-top: 3rem;
+  }
+  .dakia-root .value-card{
+    background: var(--black2);
+    padding: 2rem;
+    transition: background 0.3s;
+  }
+  .dakia-root .value-card:hover{ background: var(--black3); }
+  .dakia-root .value-num{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem; color: var(--gold-dim2);
+    letter-spacing: 0.05em; line-height: 1;
+    border-left: 2px solid var(--gold);
+    padding-left: 0.8rem;
+    margin-bottom: 1rem;
+    transition: color 0.3s;
+  }
+  .dakia-root .value-card:hover .value-num{ color: var(--gold-dim); }
+  .dakia-root .value-title{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--white2); margin-bottom: 0.5rem;
+  }
+  .dakia-root .value-desc{ font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+  .dakia-root .about-visual{
+    position: relative;
+  }
+  .dakia-root .about-img-frame{
+    position: relative;
+    aspect-ratio: 4/5;
+    background: var(--black3);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .dakia-root .about-img-frame::before{
+    content: '';
+    position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
+    border: 1px solid var(--border);
+    z-index: 2; pointer-events: none;
+  }
+  .dakia-root .about-img-inner{
+    width: 100%; height: 100%;
+    background:
+      linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 60%),
+      url('/assets/event-2.jpg') center/cover no-repeat;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1.5rem;
+    position: relative;
+  }
+  .dakia-root .about-img-inner::after{
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(8,8,8,0.6) 0%, rgba(8,8,8,0.85) 100%);
+  }
+  .dakia-root .stage-icon{
+    width: 120px; height: 80px;
+    border-bottom: 3px solid var(--gold);
+    position: relative;
+    margin-bottom: 1rem;
+    z-index: 1;
+  }
+  .dakia-root .stage-icon::before{
+    content: '';
+    position: absolute;
+    top: 20px; left: 20px; right: 20px; bottom: 0;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-bottom: none;
+  }
+  .dakia-root .stage-icon::after{
+    content: '';
+    position: absolute;
+    bottom: -20px; left: 50%; transform: translateX(-50%);
+    width: 80%; height: 20px;
+    background: linear-gradient(to bottom, rgba(201,168,76,0.15), transparent);
+  }
+  .dakia-root .frame-label{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem; color: rgba(201,168,76,0.12); letter-spacing: 0.1em;
+    text-align: center;
+    z-index: 1;
+    line-height: 1;
+  }
+  .dakia-root .about-corner-tag{
+    position: absolute; bottom: -1.5rem; right: -1.5rem;
+    background: var(--gold);
+    padding: 1.5rem 2rem;
+    z-index: 3;
+  }
+  .dakia-root .about-corner-num{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem; color: var(--black);
+    line-height: 1;
+  }
+  .dakia-root .about-corner-txt{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(0,0,0,0.6);
+  }
+
+  /* ── SERVICES ── */
+  .dakia-root #services{ background: var(--black); }
+  .dakia-root .services-header{
+    display: flex; justify-content: space-between; align-items: flex-end;
+    max-width: 1400px; margin: 0 auto 4rem;
+  }
+  .dakia-root .services-intro{
+    max-width: 380px;
+    font-size: 0.95rem; line-height: 1.8; color: var(--muted);
+  }
+  .dakia-root .services-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border2);
+    border: 1px solid var(--border2);
+    max-width: 1400px; margin: 0 auto;
+  }
+  .dakia-root .service-card{
+    background: var(--black);
+    padding: 3rem 2.5rem;
+    position: relative; overflow: hidden;
+    transition: background 0.4s;
+    cursor: default;
+  }
+  .dakia-root .service-card::before{
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+  }
+  .dakia-root .service-card:hover{ background: var(--black3); }
+  .dakia-root .service-card:hover::before{ transform: scaleX(1); }
+  .dakia-root .service-icon{
+    width: 56px; height: 56px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 2rem;
+    transition: border-color 0.3s, background 0.3s;
+    position: relative; z-index: 1;
+  }
+  .dakia-root .service-card:hover .service-icon{ border-color: var(--gold); background: var(--gold-dim2); }
+  .dakia-root .service-icon svg{ width: 24px; height: 24px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+  .dakia-root .service-num{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem; color: rgba(201,168,76,0.04);
+    position: absolute; top: 1rem; right: 1.5rem;
+    line-height: 1; letter-spacing: 0.05em;
+    transition: color 0.4s;
+    pointer-events: none;
+  }
+  .dakia-root .service-card:hover .service-num{ color: rgba(201,168,76,0.08); }
+  .dakia-root .service-title{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.4rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--white); margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  .dakia-root .service-desc{
+    font-size: 0.875rem; line-height: 1.75;
+    color: var(--muted); margin-bottom: 2rem;
+  }
+  .dakia-root .service-features{
+    list-style: none;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .dakia-root .service-features li{
+    font-size: 0.8rem; color: var(--muted2);
+    display: flex; align-items: center; gap: 0.6rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .dakia-root .service-features li::before{
+    content: ''; width: 4px; height: 1px; background: var(--gold); flex-shrink: 0;
+  }
+  .dakia-root .service-card.featured{
+    background: var(--gold-dim2);
+    border: 1px solid var(--border);
+  }
+  .dakia-root .service-card.featured:hover{ background: rgba(201,168,76,0.06); }
+  .dakia-root .feat-badge{
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--border);
+    padding: 0.25rem 0.75rem;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ── EVENTS ── */
+  .dakia-root #events{
+    background: var(--black2);
+    overflow: hidden;
+  }
+  .dakia-root .events-header{
+    display: flex; justify-content: space-between; align-items: flex-end;
+    max-width: 1400px; margin: 0 auto 3rem;
+  }
+  .dakia-root .events-scroll-wrap{
+    overflow: hidden;
+    max-width: 1400px; margin: 0 auto;
+  }
+  .dakia-root .events-track{
+    display: flex; gap: 1.5rem;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    scrollbar-width: none; -ms-overflow-style: none;
+    padding-bottom: 1rem;
+    cursor: grab;
+  }
+  .dakia-root .events-track::-webkit-scrollbar{ display: none; }
+  .dakia-root .events-track:active{ cursor: grabbing; }
+  .dakia-root .event-card{
+    flex: 0 0 320px; scroll-snap-align: start;
+    background: var(--black3);
+    border: 1px solid var(--border2);
+    position: relative; overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .dakia-root .event-card:hover{ border-color: var(--border); transform: translateY(-4px); }
+  .dakia-root .event-visual{
+    height: 220px;
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dakia-root .event-visual img{
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.23,1,0.32,1);
+    filter: brightness(0.75) contrast(1.02);
+  }
+  .dakia-root .event-card:hover .event-visual img{ transform: scale(1.05); }
+  .dakia-root .event-visual::after{
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(transparent 40%, rgba(8,8,8,0.9) 100%);
+    z-index: 1;
+  }
+  .dakia-root .event-icon-big{
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  }
+  .dakia-root .event-icon-big svg{ width: 48px; height: 48px; stroke: rgba(255,255,255,0.6); fill: none; stroke-width: 1; }
+  .dakia-root .event-icon-label{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  }
+  .dakia-root .event-info{ padding: 1.5rem; }
+  .dakia-root .event-type{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.5rem;
+  }
+  .dakia-root .event-name{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.2rem; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--white); font-weight: 600; margin-bottom: 0.5rem;
+  }
+  .dakia-root .event-tech{
+    font-size: 0.8rem; color: var(--muted); line-height: 1.6;
+  }
+  .dakia-root .events-nav{
+    display: flex; gap: 0.75rem; margin-top: 2rem; justify-content: center;
+  }
+  .dakia-root .ev-nav-btn{
+    width: 40px; height: 40px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; background: transparent;
+    transition: all 0.3s; color: var(--muted);
+  }
+  .dakia-root .ev-nav-btn:hover{ border-color: var(--gold); color: var(--gold); }
+  .dakia-root .ev-nav-btn svg{ width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  /* ── CLIENTS / BRANDS ── */
+  .dakia-root #clients{ background: var(--black2); }
+  .dakia-root .clients-image-wrap{
+    max-width: 1100px; margin: 3rem auto 0;
+    border: 1px solid var(--border2);
+    background: var(--black3);
+    overflow: hidden;
+  }
+  .dakia-root .clients-image-wrap img{
+    width: 100%; height: auto;
+    object-fit: cover; object-position: center;
+    filter: grayscale(1) brightness(1.7);
+    opacity: 0.88;
+    transition: filter 0.4s, opacity 0.4s;
+  }
+  .dakia-root .clients-image-wrap img:hover{
+    filter: grayscale(0) brightness(1);
+    opacity: 1;
+  }
+
+  /* ── CAPABILITIES ── */
+  .dakia-root #capabilities{ background: var(--black); }
+  .dakia-root .cap-grid{
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6rem; align-items: start;
+    max-width: 1400px; margin: 0 auto;
+  }
+  .dakia-root .cap-list{ display: flex; flex-direction: column; gap: 0; }
+  .dakia-root .cap-item{
+    border-bottom: 1px solid var(--border2);
+    padding: 2rem 0;
+    cursor: default;
+    transition: padding-left 0.3s;
+    position: relative;
+  }
+  .dakia-root .cap-item:hover{ padding-left: 1rem; }
+  .dakia-root .cap-item::before{
+    content: '';
+    position: absolute; left: 0; top: 2rem; bottom: 2rem;
+    width: 2px; background: var(--gold);
+    transform: scaleY(0);
+    transition: transform 0.3s;
+  }
+  .dakia-root .cap-item:hover::before{ transform: scaleY(1); }
+  .dakia-root .cap-item-header{
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  .dakia-root .cap-item-title{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--white2); font-weight: 600;
+  }
+  .dakia-root .cap-item:hover .cap-item-title{ color: var(--white); }
+  .dakia-root .cap-arrow{
+    width: 20px; height: 20px;
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s; flex-shrink: 0;
+  }
+  .dakia-root .cap-item:hover .cap-arrow{ border-color: var(--gold); }
+  .dakia-root .cap-arrow svg{ width: 10px; height: 10px; stroke: var(--muted); fill: none; stroke-width: 2; transition: stroke 0.3s, transform 0.3s; }
+  .dakia-root .cap-item:hover .cap-arrow svg{ stroke: var(--gold); transform: translate(2px, -2px); }
+  .dakia-root .cap-item-desc{
+    font-size: 0.85rem; color: var(--muted2); line-height: 1.6;
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.23,1,0.32,1), opacity 0.3s;
+    opacity: 0;
+  }
+  .dakia-root .cap-item:hover .cap-item-desc{ max-height: 100px; opacity: 1; }
+  .dakia-root .cap-visual{
+    position: sticky; top: 6rem;
+  }
+  .dakia-root .tech-specs{
+    border: 1px solid var(--border);
+    background: var(--black2);
+  }
+  .dakia-root .tech-specs-header{
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .dakia-root .tech-specs-title{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--gold);
+  }
+  .dakia-root .live-dot{
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #22c55e;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 0 0 rgba(34,197,94,0.4);
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+  }
+  .dakia-root .specs-list{
+    display: flex; flex-direction: column;
+  }
+  .dakia-root .spec-row{
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid var(--border2);
+    transition: background 0.2s;
+  }
+  .dakia-root .spec-row:hover{ background: var(--black3); }
+  .dakia-root .spec-row:last-child{ border-bottom: none; }
+  .dakia-root .spec-name{
+    font-size: 0.8rem; color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .dakia-root .spec-bar-wrap{ flex: 1; margin: 0 1.5rem; height: 2px; background: var(--black5); }
+  .dakia-root .spec-bar{
+    height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold2));
+    transform-origin: left;
+    animation: barGrow 1.5s cubic-bezier(0.23,1,0.32,1) forwards;
+    transform: scaleX(0);
+  }
+  @keyframes barGrow { to { transform: scaleX(1); } }
+  .dakia-root .spec-val{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem; color: var(--gold); letter-spacing: 0.1em;
+  }
+
+  /* ── PROCESS ── */
+  .dakia-root #process{ background: var(--black2); }
+  .dakia-root .process-steps{
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    max-width: 1400px; margin: 0 auto;
+    position: relative;
+  }
+  .dakia-root .process-steps::before{
+    content: '';
+    position: absolute; top: 2.5rem; left: 10%; right: 10%;
+    height: 1px; background: linear-gradient(90deg, transparent, var(--border), var(--gold), var(--border), transparent);
+  }
+  .dakia-root .process-step{
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 0 1rem;
+  }
+  .dakia-root .step-num-wrap{
+    width: 50px; height: 50px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 1;
+    background: var(--black2);
+    margin-bottom: 2rem;
+    transition: all 0.3s;
+  }
+  .dakia-root .process-step:hover .step-num-wrap{
+    border-color: var(--gold);
+    background: var(--gold-dim2);
+  }
+  .dakia-root .step-num{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem; color: var(--gold); letter-spacing: 0.1em;
+  }
+  .dakia-root .step-title{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--white2); margin-bottom: 0.75rem; font-weight: 600;
+  }
+  .dakia-root .step-desc{ font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── PROJECTS FOCUS ── */
+  .dakia-root #projects{ background: var(--black); }
+  .dakia-root .project-grid{
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem; max-width: 1400px; margin: 3rem auto 0;
+  }
+  .dakia-root .project-card{
+    background: var(--black2);
+    border: 1px solid var(--border2);
+    padding: 2.5rem;
+    transition: border-color 0.3s, transform 0.3s, background 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .dakia-root .project-card::before{
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+  }
+  .dakia-root .project-card:hover{ border-color: var(--border); transform: translateY(-4px); background: var(--black3); }
+  .dakia-root .project-card:hover::before{ transform: scaleX(1); }
+  .dakia-root .project-card b{
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem; color: var(--white); letter-spacing: 0.05em;
+    margin-bottom: 1rem; font-weight: 400;
+  }
+  .dakia-root .project-card span{
+    font-size: 0.85rem; color: var(--muted); line-height: 1.7;
+    display: block;
+  }
+
+  /* ── TESTIMONIALS ── */
+  .dakia-root #testimonials{ background: var(--black); }
+  .dakia-root .testimonials-grid{
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem; max-width: 1400px; margin: 0 auto;
+  }
+  .dakia-root .testi-card{
+    background: var(--black2);
+    border: 1px solid var(--border2);
+    padding: 2.5rem;
+    position: relative; overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .dakia-root .testi-card:hover{ border-color: var(--border); transform: translateY(-3px); }
+  .dakia-root .testi-quote{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem; color: rgba(201,168,76,0.08);
+    line-height: 0.8; margin-bottom: 1rem; display: block;
+  }
+  .dakia-root .testi-text{
+    font-size: 0.9rem; line-height: 1.75; color: var(--muted);
+    margin-bottom: 2rem; font-style: italic;
+  }
+  .dakia-root .testi-author{
+    display: flex; align-items: center; gap: 1rem;
+    padding-top: 1.5rem; border-top: 1px solid var(--border2);
+  }
+  .dakia-root .testi-avatar{
+    width: 40px; height: 40px;
+    border: 1px solid var(--border);
+    background: var(--black3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem; color: var(--gold); letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+  .dakia-root .testi-name{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--white2); font-weight: 600;
+  }
+  .dakia-root .testi-role{ font-size: 0.75rem; color: var(--muted2); margin-top: 0.2rem; }
+  .dakia-root .star-row{ display: flex; gap: 3px; margin-bottom: 1rem; }
+  .dakia-root .star-row span{ color: var(--gold); font-size: 0.7rem; }
+
+  /* ── CONTACT ── */
+  .dakia-root #contact{ background: var(--black); }
+  .dakia-root .contact-wrap{
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6rem; max-width: 1400px; margin: 0 auto;
+    align-items: start;
+  }
+  .dakia-root .contact-info{ display: flex; flex-direction: column; gap: 2rem; }
+  .dakia-root .contact-info p{
+    font-size: 1rem; line-height: 1.8; color: var(--muted);
+  }
+  .dakia-root .contact-detail{
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+  .dakia-root .detail-item{
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--border2);
+    background: var(--black2);
+    transition: border-color 0.3s;
+  }
+  .dakia-root .detail-item:hover{ border-color: var(--border); }
+  .dakia-root .detail-icon{
+    width: 36px; height: 36px; flex-shrink: 0;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dakia-root .detail-icon svg{ width: 16px; height: 16px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+  .dakia-root .detail-label{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted2); margin-bottom: 0.25rem;
+  }
+  .dakia-root .detail-val{
+    font-size: 0.9rem; color: var(--white2);
+  }
+  .dakia-root .detail-val a{ color: inherit; }
+  .dakia-root .detail-val a:hover{ color: var(--gold); }
+
+  .dakia-root .quick-links{
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin-top: 1rem;
+  }
+  .dakia-root .quick-links a{
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border2);
+    background: var(--black2);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem; letter-spacing: 0.08em;
+    color: var(--white);
+    transition: all 0.3s;
+    display: block;
+  }
+  .dakia-root .quick-links a small{
+    display: block;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.7rem; font-weight: 300; letter-spacing: 0.02em;
+    color: var(--muted); margin-top: 4px;
+  }
+  .dakia-root .quick-links a:hover{
+    border-color: var(--gold);
+    background: var(--gold-dim2);
+  }
+
+  .dakia-root .contact-form{ display: flex; flex-direction: column; gap: 1rem; }
+  .dakia-root .honeypot{ position: absolute!important; left: -9999px!important; opacity: 0!important; height: 0!important; width: 0!important; }
+  .dakia-root .form-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .dakia-root .form-group{ display: flex; flex-direction: column; gap: 0.5rem; }
+  .dakia-root .form-group label{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted2);
+  }
+  .dakia-root .form-group input, .dakia-root .form-group select, .dakia-root .form-group textarea{
+    background: var(--black2);
+    border: 1px solid var(--border2);
+    color: var(--white);
+    padding: 0.875rem 1rem;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.9rem; font-weight: 300;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    appearance: none;
+    border-radius: 0;
+  }
+  .dakia-root .form-group input::placeholder, .dakia-root .form-group textarea::placeholder{ color: var(--muted2); }
+  .dakia-root .form-group input:focus, .dakia-root .form-group select:focus, .dakia-root .form-group textarea:focus{
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(201,168,76,0.12);
+  }
+  .dakia-root .form-group input[aria-invalid="true"], .dakia-root .form-group select[aria-invalid="true"], .dakia-root .form-group textarea[aria-invalid="true"]{
+    border-color: #ff776f;
+    box-shadow: 0 0 0 2px rgba(255,119,111,0.1);
+  }
+  .dakia-root .form-group select{ cursor: pointer; }
+  .dakia-root .form-group textarea{ resize: vertical; min-height: 120px; }
+  .dakia-root .error{
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem; color: #ff8a83;
+    min-height: 16px; letter-spacing: 0.04em;
+  }
+  .dakia-root .form-submit{
+    display: flex; align-items: center; gap: 1.5rem; margin-top: 0.5rem;
+  }
+  .dakia-root .form-note{ font-size: 0.75rem; color: var(--muted2); line-height: 1.5; }
+  .dakia-root .form-status{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.78rem; letter-spacing: 0.08em;
+    margin: 0;
+    color: var(--muted);
+    min-height: 20px;
+  }
+  .dakia-root .form-status.success{ color: #8ce1a7; }
+  .dakia-root .form-status.error{ color: #ff8a83; }
+  .dakia-root .privacy-note{
+    font-size: 0.72rem; color: var(--muted2); line-height: 1.5;
+    margin-top: 0.75rem;
+  }
+  .dakia-root .privacy-note a{ color: var(--gold); }
+
+  /* ── FOOTER ── */
+  .dakia-root footer{
+    background: var(--black2);
+    border-top: 1px solid var(--border);
+  }
+  .dakia-root .footer-main{
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 4rem; padding: 5rem 4rem 4rem;
+    max-width: 1400px; margin: 0 auto;
+  }
+  .dakia-root .footer-brand p{
+    font-size: 0.85rem; color: var(--muted2); line-height: 1.7;
+    max-width: 320px;
+    margin-top: 1rem;
+  }
+  .dakia-root .footer-social{ display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+  .dakia-root .social-btn{
+    width: 36px; height: 36px;
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted2);
+    transition: all 0.3s;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.05em;
+    background: transparent;
+    text-decoration: none;
+  }
+  .dakia-root .social-btn:hover{ border-color: var(--gold); color: var(--gold); }
+  .dakia-root .social-btn.disabled{ opacity: 0.45; cursor: not-allowed; }
+  .dakia-root .footer-col h4{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1.5rem;
+  }
+  .dakia-root .footer-links{ display: flex; flex-direction: column; gap: 0.75rem; }
+  .dakia-root .footer-links a{
+    font-size: 0.85rem; color: var(--muted2);
+    transition: color 0.2s;
+  }
+  .dakia-root .footer-links a:hover{ color: var(--white); }
+  .dakia-root .footer-bottom{
+    border-top: 1px solid var(--border2);
+    padding: 1.5rem 4rem;
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 1400px; margin: 0 auto;
+    flex-wrap: wrap; gap: 0.75rem;
+  }
+  .dakia-root .footer-copy{
+    font-size: 0.75rem; color: var(--muted2);
+    font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.1em;
+  }
+
+  /* ── REVEAL ANIMATIONS ── */
+  .dakia-root .reveal{
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.23,1,0.32,1), transform 0.8s cubic-bezier(0.23,1,0.32,1);
+  }
+  .dakia-root .reveal.visible{ opacity: 1; transform: translateY(0); }
+  .dakia-root .reveal-delay-1{ transition-delay: 0.1s; }
+  .dakia-root .reveal-delay-2{ transition-delay: 0.2s; }
+  .dakia-root .reveal-delay-3{ transition-delay: 0.3s; }
+  .dakia-root .reveal-delay-4{ transition-delay: 0.4s; }
+
+  /* ── MOBILE NAV DRAWER ── */
+  .dakia-root .mobile-nav{
+    position: fixed; inset: 0; z-index: 1250;
+    background: var(--black);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    gap: 2rem;
+    transform: translateX(100%);
+    transition: transform 0.5s cubic-bezier(0.23,1,0.32,1);
+  }
+  .dakia-root .mobile-nav.open{ transform: translateX(0); }
+  .dakia-root .mobile-nav a{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem; color: var(--white2); letter-spacing: 0.1em;
+    transition: color 0.3s;
+  }
+  .dakia-root .mobile-nav a:hover{ color: var(--gold); }
+
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .dakia-root .about-grid, .dakia-root .cap-grid, .dakia-root .contact-wrap, .dakia-root .footer-main{ grid-template-columns: 1fr; gap: 3rem; }
+    .dakia-root .services-grid{ grid-template-columns: 1fr 1fr; }
+    .dakia-root .testimonials-grid{ grid-template-columns: 1fr 1fr; }
+    .dakia-root .process-steps{ grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+    .dakia-root .process-steps::before{ display: none; }
+    .dakia-root .footer-main{ grid-template-columns: 1fr 1fr; }
+    .dakia-root .project-grid{ grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px){
+    .dakia-root nav { padding: 1.2rem 1.5rem; }
+    .dakia-root nav.scrolled { padding: 1rem 1.5rem; }
+    .dakia-root .nav-links, .dakia-root .nav-cta { display: none; }
+    .dakia-root .hamburger { display: flex; }
+    .dakia-root #hero { padding: 0 1.5rem 4rem; }
+    .dakia-root .section-pad { padding: 4rem 1.5rem; }
+    .dakia-root .services-grid { grid-template-columns: 1fr; }
+    .dakia-root .testimonials-grid { grid-template-columns: 1fr; }
+    .dakia-root .process-steps { grid-template-columns: 1fr 1fr; }
+    .dakia-root .form-row { grid-template-columns: 1fr; }
+    .dakia-root .footer-main { padding: 3rem 1.5rem; grid-template-columns: 1fr; }
+    .dakia-root .footer-bottom { padding: 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+    .dakia-root .services-header, .dakia-root .events-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .dakia-root .hero-bottom { flex-direction: column; gap: 2rem; align-items: flex-start; }
+    .dakia-root .project-grid { grid-template-columns: 1fr; }
+    .dakia-root .hero-bg::after { background-position: 70% center; opacity: 0.6; }
+    .dakia-root .quick-links { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .dakia-root .quick-links{ grid-template-columns: 1fr; }
+    .dakia-root .form-submit{ flex-direction: column; align-items: flex-start; gap: 1rem; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    html.dakia-mode { scroll-behavior: auto; }
+    .dakia-root .service-card, .dakia-root .btn-primary, .dakia-root .btn-outline, .dakia-root .nav-links a::after,
+    .dakia-root .testi-card, .dakia-root .project-card, .dakia-root .event-card { transition: none!important; }
+    .dakia-root .events-track { scroll-behavior: auto; }
+    .dakia-root .hero-scan, .dakia-root .scroll-line, .dakia-root .live-dot, .dakia-root .stats-ticker { animation: none!important; }
+    .dakia-root .reveal { transition: none!important; opacity: 1; transform: none; }
+    .dakia-root .spec-bar { animation: none; transform: scaleX(1); }
+  }
+  @media (pointer: coarse) {
+    .dakia-root .cursor, .dakia-root .cursor-ring{ display: none!important; }
+    .dakia-root .nav-links a::after{ display: none; }
+  }

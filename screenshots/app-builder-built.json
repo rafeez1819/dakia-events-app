@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Dakia Events | LED Video Walls, AV Rental & Event Production UAE – Ajman, Dubai, Abu Dhabi",
+      "hasCanvas": false,
+      "bodyTextLen": 10039,
+      "bodyTextHash": "bee2efb512593833ae4620af1573392fedf8a82d8c97ca1b415df0d0ce862456",
+      "bodyTextPrefix": "SKIP TO CONTENT DAKIA EVENTS ABOUT SERVICES EVENTS CAPABILITIES ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Dakia Events | LED Video Walls, AV Rental & Event Production UAE – Ajman, Dubai, Abu Dhabi",
+      "hasCanvas": false,
+      "bodyTextLen": 9975,
+      "bodyTextHash": "23c684930e92648167a2308320735fbba084f6e1e19e3955eb2f9a33079f5a63",
+      "bodyTextPrefix": "SKIP TO CONTENT DAKIA EVENTS DAKIA EVENTS · ARENA OPERATIONS EXC",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}
