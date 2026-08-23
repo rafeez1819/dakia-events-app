@@ -2,4 +2,4 @@
   uses: 'vercel/repository-dispatch/actions/status@v1'
   with:
     # The name of the check will be used to identify the check in the Deployment Checks settings and must be unique
-    name: "Vercel - my-project: e2e-tests"
+    name: "Vercel - dakia-events-apps"
