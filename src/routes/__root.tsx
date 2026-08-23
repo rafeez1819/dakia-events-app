@@ -7,6 +7,7 @@ import {
   Scripts,
   useRouterState,
 } from "@tanstack/react-router";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "Dakia Events";
@@ -49,6 +50,7 @@ function RootComponent() {
         <AuthProvider>
           <Outlet />
         </AuthProvider>
+        <SpeedInsights />
         <Scripts />
       </body>
     </html>
